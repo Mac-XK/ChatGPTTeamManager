@@ -1,0 +1,27 @@
+{
+    "manifest_version": 3,
+    "name": "ChatGPT Manager",
+    "version": "1.0",
+    "description": "直接从浏览器管理 ChatGPT 团队邀请和统计信息。",
+    "permissions": [
+        "storage",
+        "activeTab",
+        "cookies"
+    ],
+    "host_permissions": [
+        "*://*.chatgpt.com/*"
+    ],
+    "action": {
+        "default_popup": "popup.html",
+        "default_icon": {
+            "16": "icon16.png",
+            "48": "icon48.png",
+            "128": "icon128.png"
+        }
+    },
+    "icons": {
+        "16": "icon16.png",
+        "48": "icon48.png",
+        "128": "icon128.png"
+    }
+}

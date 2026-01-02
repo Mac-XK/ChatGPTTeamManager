@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ChatGPT Manager</title>
+    <link rel="stylesheet" href="popup.css">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+</head>
+
+<body>
+    <div class="header">
+        <div class="header-left">
+            <span class="material-icons menu-icon" id="menu-btn">menu</span>
+            <span class="title">GPT账号管理</span>
+        </div>
+        <div class="header-right">
+        </div>
+    </div>
+
+    <!-- Sidebar Drawer -->
+    <div id="drawer-overlay" class="drawer-overlay hidden"></div>
+    <div id="drawer" class="drawer">
+        <div class="drawer-header">
+            <h3>GPT Team</h3>
+        </div>
+        <div class="drawer-item" id="nav-home">
+            <span class="material-icons">home</span> 首页
+        </div>
+        <div class="drawer-item" id="nav-settings">
+            <span class="material-icons">settings</span> 账号
+        </div>
+        <div class="drawer-footer">
+            v1.1.0
+        </div>
+    </div>
+
+    <!-- 首页容器 -->
+    <div id="home-view" class="container">
+        <!-- 统计概览 标题栏 -->
+        <div class="view-header"
+            style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+            <h4 class="section-title" style="margin:0;">数据概览</h4>
+            <span class="material-icons" id="refresh-stats-btn" style="color:#5f6368;cursor:pointer;font-size:20px;"
+                title="刷新数据">refresh</span>
+        </div>
+
+        <!-- 数据卡片 -->
+        <div class="dashboard-stats" id="dashboard-stats">
+            <div class="stat-card blue">
+                <div class="icon-wrapper"><span class="material-icons">groups</span></div>
+                <div class="stat-value" id="stat-total-accounts">0</div>
+                <div class="stat-title">账号总数</div>
+            </div>
+            <div class="stat-card green">
+                <div class="icon-wrapper"><span class="material-icons">person_add</span></div>
+                <div class="stat-value" id="stat-total-invites">0</div>
+                <div class="stat-title">已邀请</div>
+            </div>
+            <div class="stat-card orange">
+                <div class="icon-wrapper"><span class="material-icons">hourglass_empty</span></div>
+                <div class="stat-value" id="stat-pending">0</div>
+                <div class="stat-title">待接受</div>
+            </div>
+            <div class="stat-card purple">
+                <div class="icon-wrapper"><span class="material-icons">event_seat</span></div>
+                <div class="stat-value" id="stat-available">0</div>
+                <div class="stat-title">剩余席位</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 账号管理页面 (默认隐藏) -->
+    <div id="settings-view" class="container hidden">
+        <div class="view-header" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0;">
+            <h3 style="margin:0;">账号列表</h3>
+            <div class="header-actions">
+                <span class="text-btn" id="btn-import" title="导入账号">导入</span>
+                <span class="text-btn" id="btn-export" title="导出账号">导出</span>
+                <span class="material-icons action-icon" id="btn-show-add-form" style="color:#1a73e8;" title="添加账号">add_circle</span>
+            </div>
+        </div>
+        <!-- 隐藏的文件输入框用于导入 -->
+        <input type="file" id="import-file-input" accept=".json" style="display:none;">
+
+        <!-- 账号列表容器 -->
+        <div id="saved-configs-list" class="team-cards-container"></div>
+
+        <!-- 添加表单 (默认隐藏) -->
+        <div id="add-form-container" class="form-container hidden"
+            style="background:#fff;padding:16px;border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,0.1);margin-top:16px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+                <h4 style="margin:0;">添加新账号</h4>
+                <span class="material-icons" id="cancel-add" style="cursor:pointer;color:#999;">close</span>
+            </div>
+
+            <div class="form-group">
+                <label>Team Name (备注)</label>
+                <input type="text" id="cfg-name" placeholder="例如: Team A">
+            </div>
+            <div class="form-group">
+                <label style="display:flex;justify-content:space-between;">
+                    Account ID
+                    <span id="auto-get-id" style="color:#1a73e8;cursor:pointer;font-size:12px;">自动获取</span>
+                </label>
+                <input type="text" id="cfg-id" placeholder="ChatGPT Account ID">
+            </div>
+            <div class="form-group">
+                <label style="display:flex;justify-content:space-between;">
+                    Auth Token
+                    <span id="auto-fill-token" style="color:#1a73e8;cursor:pointer;font-size:12px;">自动获取</span>
+                </label>
+                <input type="text" id="cfg-token" placeholder="Bearer eyJ...">
+            </div>
+            <div class="form-group">
+                <label>最大可邀请数</label>
+                <input type="number" id="cfg-max" value="4">
+            </div>
+            <div class="actions" style="margin-top:16px;">
+                <button id="save-config" class="primary" style="width:100%;">保存配置</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 邀请弹窗 -->
+    <div id="invite-modal-overlay" class="drawer-overlay hidden" style="z-index: 300;"></div>
+    <div id="invite-modal" class="custom-modal hidden">
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+            <h4 style="margin:0;font-size:16px;">发送邀请</h4>
+            <span class="material-icons" id="close-invite-modal"
+                style="cursor:pointer;color:#999;font-size:20px;">close</span>
+        </div>
+
+        <div style="background:#f8f9fa;padding:12px;border-radius:8px;">
+            <p style="margin:0 0 4px 0;font-size:12px;color:#5f6368;">邀请加入团队:</p>
+            <p id="modal-team-name" style="margin:0;font-weight:600;color:#1a73e8;">Team Name</p>
+        </div>
+
+        <div class="form-group" style="margin:0;">
+            <input type="email" id="modal-invite-email" placeholder="输入对方邮箱..."
+                style="width:100%;padding:10px;border:1px solid #dadce0;border-radius:8px;box-sizing:border-box;">
+        </div>
+
+        <button id="btn-send-invite-confirm" class="primary"
+            style="width:100%;padding:10px;border-radius:8px;font-weight:500;">立即发送</button>
+    </div>
+
+    <!-- 删除确认弹窗 -->
+    <div id="delete-modal-overlay" class="drawer-overlay hidden" style="z-index: 310;"></div>
+    <div id="delete-modal" class="custom-modal hidden" style="z-index: 311;">
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+            <h4 style="margin:0;font-size:16px;color:#d93025;">删除账号</h4>
+            <span class="material-icons" id="close-delete-modal"
+                style="cursor:pointer;color:#999;font-size:20px;">close</span>
+        </div>
+
+        <div style="padding:8px 0;">
+            <p style="margin:0;font-size:14px;color:#3c4043;line-height:1.5;">确定要移除账号 <span id="modal-delete-team-name"
+                    style="font-weight:600;"></span> 吗？</p>
+            <p style="margin:4px 0 0 0;font-size:12px;color:#9aa0a6;">移除后本地记录也会被清空。</p>
+        </div>
+
+        <div class="actions" style="display:flex;gap:12px;">
+            <button id="btn-cancel-delete"
+                style="flex:1;border:1px solid #dadce0;background:#fff;color:#3c4043;">取消</button>
+            <button id="btn-confirm-delete" style="flex:1;background:#d93025;color:#fff;border:none;">确认移除</button>
+        </div>
+    </div>
+
+    <!-- 模板: Team Card (用于账号列表) -->
+    <template id="card-template">
+        <div class="card">
+            <div class="card-header" style="position:relative;">
+                <div class="tags">
+                    <span class="tag team-tag">Team</span>
+                    <span class="tag status-tag">正常</span>
+                </div>
+                <span class="material-icons more-options" style="cursor:pointer;color:#5f6368;">more_vert</span>
+
+                <!-- Dropdown Menu -->
+                <div class="dropdown-menu hidden">
+                    <div class="menu-item action-refresh">
+                        <span class="material-icons" style="font-size:16px;">refresh</span> 刷新
+                    </div>
+                    <div class="menu-item action-invite">
+                        <span class="material-icons" style="font-size:16px;">send</span> 邀请
+                    </div>
+                    <div class="menu-item action-delete" style="color:#d93025;">
+                        <span class="material-icons" style="font-size:16px;color:#d93025;">delete</span> 删除
+                    </div>
+                </div>
+            </div>
+
+            <div class="card-body">
+                <h3 class="team-email">
+                    <span class="team-seq">1</span>
+                    <span class="team-name">Loading...</span>
+                </h3>
+                <p class="team-meta">
+                    <span class="meta-id-label">ID:</span> <span class="meta-id">...</span>
+                </p>
+                <p class="team-meta meta-date-row">
+                    <span class="meta-date-label">添加日期:</span> <span class="meta-date">...</span>
+                </p>
+
+                <div class="stats-row">
+                    <div class="stat-item">
+                        <span class="stat-num num-joined">0</span>
+                        <span class="stat-label">已加入</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-num num-pending">0</span>
+                        <span class="stat-label">待接受</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-num num-available">0</span>
+                        <span class="stat-label">可邀请</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-num num-total">0</span>
+                        <span class="stat-label">总席位</span>
+                    </div>
+                </div>
+
+                <div class="progress-container">
+                    <div class="progress-bar"></div>
+                </div>
+                <div class="msg-box hidden"></div>
+            </div>
+        </div>
+    </template>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast hidden">
+        <span class="material-icons toast-icon">check_circle</span>
+        <span class="toast-text">配置已保存</span>
+    </div>
+
+    <script src="popup.js"></script>
+</body>
+
+</html>
