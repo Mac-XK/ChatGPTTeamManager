@@ -13,10 +13,10 @@
 
 ChatGPT Team Manager 是一款便捷的浏览器扩展，专为 ChatGPT Team 管理员设计。它可以帮助你轻松管理多个团队账号、批量发送邀请、实时查看统计数据，无需频繁登录 ChatGPT 后台进行操作。
 
-<img width="394" height="614" alt="image" src="https://github.com/user-attachments/assets/85675853-4bdb-4783-941c-d23bc4cbc4a4" />
-<img width="394" height="614" alt="image" src="https://github.com/user-attachments/assets/cab52a16-ef9f-415b-a8fe-5e089d0d3706" />
-<img width="409" height="614" alt="image" src="https://github.com/user-attachments/assets/d6f2dbfc-44b2-470b-a820-ebd3f6f991f9" />
-<img width="394" height="614" alt="image" src="https://github.com/user-attachments/assets/9391fac1-3da5-45c0-a0fd-98928b9a016b" />
+<img width="200" height="300" alt="image" src="https://github.com/user-attachments/assets/85675853-4bdb-4783-941c-d23bc4cbc4a4" />
+<img width="200" height="300" alt="image" src="https://github.com/user-attachments/assets/cab52a16-ef9f-415b-a8fe-5e089d0d3706" />
+<img width="200" height="300" alt="image" src="https://github.com/user-attachments/assets/d6f2dbfc-44b2-470b-a820-ebd3f6f991f9" />
+<img width="200" height="300" alt="image" src="https://github.com/user-attachments/assets/9391fac1-3da5-45c0-a0fd-98928b9a016b" />
 
 ### 功能特性
 
